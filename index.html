@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dot Blaster - Retro NES Game</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0c10;
+            --primary-color: #66fcf1;
+            --secondary-color: #45f3ff;
+            --accent-color: #ff007f;
+            --text-color: #c5c6c7;
+            --panel-bg: rgba(31, 40, 51, 0.45);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Share Tech Mono', monospace;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(102, 252, 241, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(255, 0, 127, 0.05) 0%, transparent 40%);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            margin: 0;
+            letter-spacing: 4px;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(102, 252, 241, 0.3);
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.02); filter: brightness(1.2); }
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            opacity: 0.8;
+            margin-top: 5px;
+            letter-spacing: 2px;
+        }
+
+        .main-container {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+            justify-content: center;
+            max-width: 1200px;
+            width: 90%;
+        }
+
+        .emulator-card {
+            background: var(--panel-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(102, 252, 241, 0.25);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5),
+                        0 0 15px 0 rgba(102, 252, 241, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #nes-container {
+            width: 512px;
+            height: 480px;
+            background: #000;
+            border-radius: 8px;
+            border: 2px solid #1f2833;
+            overflow: hidden;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+        }
+
+        /* JSNES Canvas scaling */
+        #nes-container canvas {
+            width: 100% !important;
+            height: 100% !important;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        .info-card {
+            flex: 1;
+            background: var(--panel-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 0, 127, 0.2);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-width: 320px;
+        }
+
+        .info-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: var(--accent-color);
+            margin: 0;
+            border-bottom: 2px solid rgba(255, 0, 127, 0.3);
+            padding-bottom: 8px;
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .key-badge {
+            background: rgba(102, 252, 241, 0.1);
+            border: 1px solid var(--primary-color);
+            border-radius: 6px;
+            padding: 4px 8px;
+            text-align: center;
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-shadow: 0 0 5px rgba(102, 252, 241, 0.2);
+        }
+
+        .key-desc {
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .status-panel {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px dashed rgba(102, 252, 241, 0.2);
+            text-align: center;
+        }
+
+        .status-text {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        footer {
+            margin-top: 30px;
+            font-size: 0.85rem;
+            opacity: 0.6;
+            color: var(--text-color);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>DOT BLASTER</h1>
+        <div class="subtitle">NES 8-Bit Retro Mini-Game</div>
+    </header>
+
+    <div class="main-container">
+        <div class="emulator-card">
+            <div id="nes-container"></div>
+        </div>
+
+        <div class="info-card">
+            <h2 class="info-title">GAME GUIDE</h2>
+            <div class="status-panel">
+                <div class="status-text" id="status">INITIALIZING ROM...</div>
+            </div>
+            
+            <div class="controls-grid">
+                <div class="key-badge">ARROW KEYS</div>
+                <div class="key-desc">D-Pad: Move Player (@)</div>
+                
+                <div class="key-badge">ENTER</div>
+                <div class="key-desc">Start Game</div>
+                
+                <div class="key-badge">SPACE</div>
+                <div class="key-desc">Select Option</div>
+                
+                <div class="key-badge">Z</div>
+                <div class="key-desc">B Button</div>
+
+                <div class="key-badge">X</div>
+                <div class="key-desc">A Button</div>
+            </div>
+
+            <div style="font-size: 0.95rem; line-height: 1.5; color: #a5a6a7;">
+                <strong>Objective:</strong> Use your D-Pad to maneuver the green player (<strong>@</strong>) to collect the red target dots (<strong>*</strong>). Every collection flashes the screen and triggers an authentic chime. Collect 10 to win!
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Antigravity Engine &copy; 2026 | Built with CC65 & JSNES
+    </footer>
+
+    <!-- Load JSNES -->
+    <script src="https://unpkg.com/jsnes/dist/jsnes.min.js"></script>
+    <script>
+        var nesContainer = document.getElementById("nes-container");
+        var statusText = document.getElementById("status");
+
+        // Initialize JSNES Browser wrapper
+        var browser = new jsnes.Browser({
+            container: nesContainer,
+            onError: function(err) {
+                console.error("JSNES Error:", err);
+                statusText.innerText = "ERROR LOADING EMULATOR";
+                statusText.style.color = "var(--accent-color)";
+            }
+        });
+
+        // Load and boot ROM from local URL (same folder)
+        jsnes.Browser.loadROMFromURL("game.nes", function(err, data) {
+            if (err) {
+                console.error("ROM Fetch Error:", err);
+                statusText.innerText = "ROM LOAD FAILED";
+                statusText.style.color = "var(--accent-color)";
+                return;
+            }
+            statusText.innerText = "ROM RUNNING - PLAY NOW!";
+            statusText.style.animation = "none";
+            
+            // Run ROM
+            browser.loadROM(data);
+        });
+    </script>
+</body>
+</html>
